@@ -1,1 +1,1 @@
-"# Ricci" 
+# Ricci
