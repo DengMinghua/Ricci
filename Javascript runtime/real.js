@@ -1,7 +1,7 @@
+'use strict'
 var py_Real = {
 	return_a_real_instance : function(_value) {
-		var py_real_instance = {};
-		py_real_instance.value = _value || 0;
+		var py_real_instance = new Number(_value);
 		return py_real_instance;
 	},
 
@@ -46,43 +46,43 @@ var py_Real = {
 	},
 };
 
-var py_Int = {
-	return_a_int_instance : function(_value) {
-		var py_int_instance = {};
-		py_int_instance.value = _value || 0;
-		return py_int_instance;
-	}
-}
+var py_Int = Object.create(py_Real);
+var py_Float = Object.create(py_Real);
 
-var py_Float = {
-	return_a_float_instance : function(_value) {
-		var py_float_instance = {};
-		py_float_instance.value = _value || 0;
-		return py_float_instance;
-	}
-}
-
-py_Int.__proto__ = py_Real;
-py_Float.__proto__ = py_Real;
-
+py_Int.return_a_int_instance = py_Real.return_a_real_instance;
+py_Float.return_a_float_instance = py_Real.return_a_real_instance;
 
 // ------------------------ Testing ----------------------------
 
-function print(s) {
-	console.log(s);
-}
+var print = console.log;
 
-test_list = [
+var test_list = [
+
+	// py_Int test
 	py_Int.add(3, 4),
 	py_Int.sub(3, 4),
 	py_Int.neg(py_Int.mul(3, 4)),
 	py_Int.floordiv(-3, 2),
+	py_Int.return_a_int_instance(12450),
+
+	// py_Float test
 	py_Float.mod(10, 7),
 	py_Float.pow(2, 5),
 	py_Float.div(4, 3),
-	py_Float.abs(-3.14)
+	py_Float.abs(-3.14),
+	py_Float.return_a_float_instance(10086),
+
 ];
 
 for (var i of test_list) {
 	print(i);
 }
+/*
+print(py_Real.__proto__);
+print(py_Int.__proto__);
+print(py_Float.__proto__);
+print('\n');
+print(py_Int.return_a_int_instance().__proto__);
+print(py_Int.hasOwnProperty('return_a_int_instance'));
+print(py_Int.return_a_real_instance === py_Float.return_a_real_instance);
+*/
