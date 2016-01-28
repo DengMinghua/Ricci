@@ -1,17 +1,28 @@
 'use strict'
 
-// Sequence built-in python.
-// include list, tuple, range, string, bytes
+// Sequences built-in Python.
+// Include list, tuple, range, string, bytes
 
 var print = console.log;		// define for debug
+
+///////////////////////////////////////////////////////
+//
+//	prototype lists :
+//		List -> Mutable_Sequence -> sequence ;
+//		Tuple -> Immutable_Sequence -> sequence ;
+//		Range -> Immutable_Sequence -> Sequence ;
+//
+///////////////////////////////////////////////////////
+
+
+
 
 // ----------------------------------------------
 // 	   Sequence 
 // ----------------------------------------------
 
-
 var Sequence = {
-	return_a_instance : function(_arr) {
+	return_an_instance : function(_arr) {
 		var sequence_instance = {};
 		sequence_instance.value = _arr;
 		sequence_instance.get_value = function() {
@@ -36,7 +47,7 @@ var Sequence = {
 	},
 
 	opt_add : function(_seq1, _seq2) {		
-		return this.return_a_instance(_seq1.get_value().concat(_seq2.get_value()));
+		return this.return_an_instance(_seq1.get_value().concat(_seq2.get_value()));
 	},
 
 	// Shallow copying is supported!
@@ -51,7 +62,7 @@ var Sequence = {
 			_ret = _ret.concat(_seq.get_value());
 		}
 
-		return this.return_a_instance(_ret);
+		return this.return_an_instance(_ret);
 	},
 
 	opt_item : function(_seq, _index) {
@@ -59,7 +70,7 @@ var Sequence = {
 	},
 
 	opt_slice : function(_seq, _left, _right) {
-		return this.return_a_instance(_seq.get_value().slice(_left, _right));
+		return this.return_an_instance(_seq.get_value().slice(_left, _right));
 	},
 
 	opt_index : function(_seq, _element, _left, _right) {
@@ -83,7 +94,7 @@ var Sequence = {
 				_ret.push(_seq.get_value()[i]);
 			}
 		}
-		return this.return_a_instance(_ret);
+		return this.return_an_instance(_ret);
 	},
 
 	opt_len : function(_seq) {
@@ -162,8 +173,8 @@ var Sequence = {
 
 
 var Mutable_Sequence = {
-	return_a_instance : function(_arr) {
-		var mutable_sequence_instance = Sequence.return_a_instance(_arr);
+	return_an_instance : function(_arr) {
+		var mutable_sequence_instance = Sequence.return_an_instance(_arr);
 		return mutable_sequence_instance;
 	},
 
@@ -207,7 +218,7 @@ var Mutable_Sequence = {
 	},
 
 	opt_copy : function(_mseq) {
-		var tmp = this.return_a_instance(_mseq.value);
+		var tmp = this.return_an_instance(_mseq.value);
 		return tmp;
 	},
 
@@ -241,8 +252,8 @@ Mutable_Sequence.__proto__ = Sequence;	// Inheritance
 // ----------------------------------------------
 
 var List = {
-	return_a_instance : function(_arr) {
-		var list_instance = Mutable_Sequence.return_a_instance(_arr);
+	return_an_instance : function(_arr) {
+		var list_instance = Mutable_Sequence.return_an_instance(_arr);
 		return list_instance;
 	},
 
@@ -261,8 +272,8 @@ List.__proto__ = Mutable_Sequence;	// Inheritance
 // ----------------------------------------------
 
 var Immutable_Sequence = {
-	return_a_instance : function(_arr) {
-		var immutable_sequence_instance = Sequence.return_a_instance(_arr);
+	return_an_instance : function(_arr) {
+		var immutable_sequence_instance = Sequence.return_an_instance(_arr);
 		var private_value = _arr;
 		immutable_sequence_instance.get_value = function() {
 			var _private_value_copy = private_value.slice();
@@ -279,8 +290,8 @@ Immutable_Sequence.__proto__ = Sequence;	// Inheritance
 // ----------------------------------------------
 
 var Tuple = {
-	return_a_instance : function(_arr) {
-		var tuple_instance = Immutable_Sequence.return_a_instance(_arr);
+	return_an_instance : function(_arr) {
+		var tuple_instance = Immutable_Sequence.return_an_instance(_arr);
 		return tuple_instance;
 	},
 };
@@ -292,7 +303,7 @@ Tuple.__proto__ = Immutable_Sequence;	// Inheritance
 // ----------------------------------------------
 
 var Range = {
-	return_a_instance : function(_value1, _value2, _value3) {
+	return_an_instance : function(_value1, _value2, _value3) {
 
 		// **************************************
 		//   Range(5)       -> ( 0, 1, 2, 3, 4 )
@@ -331,12 +342,12 @@ var Range = {
 			}
 		}
 
-		var range_instance = Immutable_Sequence.return_a_instance(_arr);
+		var range_instance = Immutable_Sequence.return_an_instance(_arr);
 		
 		return range_instance;
 	},
 };
-
+Range.__proto__ = Immutable_Sequence;	// Inheritance
 
 
 
@@ -348,19 +359,19 @@ var Range = {
 // --------------------------------------------- //
 //                    Testing.                   //
 // --------------------------------------------- //
-///////////////////////////////////////////////////
+/////////////////////////////////////////////////// 
 
 
 
 // ----------------------  Test1  -----------------------------
-var seq1 = Sequence.return_a_instance([0, 1, 2, 5]);
-var seq2 = Sequence.return_a_instance([100, 99, 98]);
-var seq3 = Sequence.return_a_instance([6]);
-var seqNul = Sequence.return_a_instance([[]]);
-var seqLong = Sequence.return_a_instance([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-var seqMess = Sequence.return_a_instance([2, 3, 2, 1, 9, 6, 5, 6]);
-var seq4 = Sequence.return_a_instance([1, 2, 'x']);
-var seq5 = Sequence.return_a_instance([1, 2, 'y']);
+var seq1 = Sequence.return_an_instance([0, 1, 2, 5]);
+var seq2 = Sequence.return_an_instance([100, 99, 98]);
+var seq3 = Sequence.return_an_instance([6]);
+var seqNul = Sequence.return_an_instance([[]]);
+var seqLong = Sequence.return_an_instance([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+var seqMess = Sequence.return_an_instance([2, 3, 2, 1, 9, 6, 5, 6]);
+var seq4 = Sequence.return_an_instance([1, 2, 'x']);
+var seq5 = Sequence.return_an_instance([1, 2, 'y']);
 
 var test_list1 = [
 	"-------------- Sequence function -------------",
@@ -400,7 +411,7 @@ var test_list1 = [
 
 // ----------------------  Test2  -----------------------------
 var mseq1 = seq1;
-var mseq2 = Mutable_Sequence.return_a_instance([1, 2, 3, 4, 5]);
+var mseq2 = Mutable_Sequence.return_an_instance([1, 2, 3, 4, 5]);
 var mseqMess = seqMess;
 
 var test_list2 = [
@@ -437,9 +448,9 @@ var test_list3 = [
 
 
 // ----------------------  Test4  -----------------------------
-var imseq1 = Immutable_Sequence.return_a_instance([9, 8, 7, 6, 5]);
-var tup1 = Tuple.return_a_instance([9, 8, 7, 6, 5]);
-var tupMess = Tuple.return_a_instance([2, 3, 2, 1, 9, 6, 5, 6, 2]);
+var imseq1 = Immutable_Sequence.return_an_instance([9, 8, 7, 6, 5]);
+var tup1 = Tuple.return_an_instance([9, 8, 7, 6, 5]);
+var tupMess = Tuple.return_an_instance([2, 3, 2, 1, 9, 6, 5, 6, 2]);
 var test_list4 = [
 	"-------------- Immutable_Sequence and Tuple -------------",
 	imseq1.get_value(),
@@ -459,10 +470,10 @@ var test_list4 = [
 // ----------------------  Test5  -----------------------------
 var test_list5 = [
 	"-------------- Range Creation -------------",
-	Range.return_a_instance(6),	// [0, 1, 2, 3, 4, 5]
-	Range.return_a_instance(1, 10, 2),	// [1, 3, 5, 7, 9]
-	Range.return_a_instance(7, 3, -1), 	// [7, 6, 5, 4]
-	Range.return_a_instance(1000),	// [0 ... 999]
+	Range.return_an_instance(6),	// [0, 1, 2, 3, 4, 5]
+	Range.return_an_instance(1, 10, 2),	// [1, 3, 5, 7, 9]
+	Range.return_an_instance(7, 3, -1), 	// [7, 6, 5, 4]
+	Range.return_an_instance(1000),	// [0 ... 999]
 ];
 
 
