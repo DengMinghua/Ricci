@@ -16,16 +16,37 @@ var String_Py = {
 		return this.return_an_instance(_ret);
 	},
 
-	opt_casefold : function() {
-		// TODO();
+	opt_casefold : function(_str) {
+		return this.opt_lower(_str);
 	},
 
 	opt_center : function() {
 		// TODO();
 	},
 
-	opt_count : function() {
-		// TODO();
+	opt_count : function(_str, _substr) {
+		// count the number of substr
+
+		// make sure that _substr is string type.
+		if (typeof(_substr) !== 'string') {
+			_substr = _substr.value;
+		}
+
+		if (_substr === '') {
+			return _str.value.length + 1;
+		}
+
+		var _substr_len = _substr.length;
+
+		var _sum = 0;
+		var i = _str.value.indexOf(_substr);
+
+		while (i >= 0 && i < _str.value.length) {
+			_sum += 1;
+			i = this.opt_find(_str, _substr, i + _substr_len);
+		}
+
+		return _sum;
 	},
 
 	opt_encode : function() {
@@ -40,20 +61,40 @@ var String_Py = {
 		// TODO();
 	},
 
-	opt_find : function() {
+	opt_find : function(_str, _substr, _start, _end) {
 		// If not find, return -1
-		// TODO();
+
+		// make sure that _substr is string type.
+		if (typeof(_substr) !== 'string') {
+			_substr = _substr.value;
+		}
+
+		if (_substr === '') {
+			return 0;
+		}
+
+		var _left = _start || 0;
+		var _right = _end || _str.value.length;
+		var _index = _str.value.slice(_left, _right).indexOf(_substr);
+
+		return _index === -1 ? _index : _index + _left;
 	},
+
 	opt_format : function() {
 		// TODO();
 	},
 	opt_format_map : function() {
 		// TODO();
 	},
-	opt_index : function() {
-		// If not find, throw Error
-		// TODO();
+
+	opt_index : function(_str, _substr, _start, _end) {
+		var _ret = this.opt_find(_str, _substr, _start, _end);
+		if (_ret === -1) {
+			throw "operation of String, opt_index failed...";
+		}
+		return _ret;
 	},
+
 	opt_isalnum : function(_str) {
 		return /^[A-Za-z0-9]+$/g.test(_str.value);
 	},
@@ -101,14 +142,40 @@ var String_Py = {
 		    }
 		}
 		return _hit;
-		// return /^.+[[A-Z][a-z]+[^A-Za-z]+]+$/g.test(_str.value);
 	},
+
 	opt_isupper : function(_str) {
 		return /^[A-Z]+$/g.test(_str.value);
 	},
-	opt_join : function() {
-		// TODO();
+
+	opt_join : function(_str, _arr_of_str) {
+
+		if (typeof(_str) !== 'string') {
+			_str = _str.value;
+		}
+
+		if (typeof(_arr_of_str.value) === 'string') {
+			var _arr_of_char = _arr_of_str.value;
+			var _ret = _arr_of_char[0];
+			for (var i in _arr_of_char) {
+				_ret = _ret.concat(_str, _arr_of_char[i]);
+			}
+			return _ret;
+		} else {
+			if (typeof(_arr_of_str[0].value) !== 'string') {
+				throw "TypeError";
+			}
+			var _ret = _arr_of_str[0].value;
+			for (var i = 1, _len = _arr_of_str.length; i < _len; i++) {
+				if (typeof(_arr_of_str[i].value) !== 'string') {
+					throw "TypeError";
+				}
+				_ret = _ret.concat(_str, _arr_of_str[i].value);
+			}
+			return _ret;
+		}
 	},
+
 	opt_ljust : function() {
 		// TODO();
 	},
@@ -195,6 +262,7 @@ var s8 = String_Py.return_an_instance("I Am A Man..Adsdfsf123Gsd...A");
 var s9 = String_Py.return_an_instance("ImA Man");
 var s10 = String_Py.return_an_instance("..Im A Man..");
 var s11 = String_Py.return_an_instance("riDIcUloUs");
+var s12 = String_Py.return_an_instance("1");
 
 var test_list = [
 	"[" + String_Py.opt_strip(s1).value + "]",
@@ -214,6 +282,17 @@ var test_list = [
 	String_Py.opt_istitle(s10),
 
 	String_Py.opt_capitalize(s11),
+
+	String_Py.opt_find(s10, "Man", 8),
+	String_Py.opt_find(s3, ""),
+
+	String_Py.opt_count(s4, s5),
+	String_Py.opt_count(s3, s12),
+	String_Py.opt_count(s8, "123"),
+
+	String_Py.opt_join("-", s3),
+	String_Py.opt_join("___", [s3, s4, s11]),
+	String_Py.opt_join(s12, s11),
 ];
 
 for (var i of test_list) {
