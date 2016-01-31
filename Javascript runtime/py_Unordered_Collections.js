@@ -8,21 +8,21 @@ var print = console.log;		// define for debug
 ///////////////////////////////////////////////////////
 //
 //	prototype lists :
-//		py_Set -> py_Set_Base ;
-//		py_FrozenSet -> py_Set_Base ;
-//		Dict ;
+//		py_Set -> py_Set_Base -> Unordered_Collection ;
+//		py_FrozenSet -> py_Set_Base -> Unordered_Collection ;
+//		Dict -> Unordered_Collection ;
 //
 ///////////////////////////////////////////////////////
 
 
 
-// ----------------------------------------------
-//     Set Base
-// ----------------------------------------------
 
 
-// the Base Class of py_Set and py_FrozenSet
-var py_Set_Base = {
+// ----------------------------------------------
+//     Unordered_Collection
+// ----------------------------------------------
+
+var py_Unordered_Collection = {
 
 // ---------------------------------------------------------------------
 // -*- Auxiliary Function -*-
@@ -52,9 +52,46 @@ var py_Set_Base = {
 
 // ---------------------------------------------------------------------
 
+    // uc stands for unordered collection.
+
+    return_an_instance : function() {
+        var py_uc_instance = {};
+        py_uc_instance.value = {};
+
+        py_uc_instance.iter = null;     // iterator : index of keys
+
+        py_uc_instance.next = function() {
+            // get the next value
+            var _key_list = Object.getOwnPropertyNames(this.value);
+
+            if (this.iter === null) {
+                this.iter = 0;
+            } else if (++(this.iter) === _key_list.length) {
+                this.iter = null;
+                return undefined;
+            }
+
+            return this.value[_key_list[this.iter]];
+        }
+
+        return py_uc_instance;
+    },
+};
+
+
+
+
+
+// ----------------------------------------------
+//     Set Base
+// ----------------------------------------------
+
+
+// the Base Class of py_Set and py_FrozenSet
+var py_Set_Base = {
+
     return_an_instance : function(_arr_of_obj) {
-        var py_set_base_instance = {};
-        py_set_base_instance.value = {};
+        var py_set_base_instance = py_Unordered_Collection.return_an_instance();
 
         var _key;
         for (var i in _arr_of_obj) {
@@ -70,11 +107,18 @@ var py_Set_Base = {
                 _type_of_value = typeof this.value[i];
                 if (_type_of_value === 'string') {
                     _ret_str = _ret_str.concat('\'' + i + '\', ');
+                } else if (_type_of_value === 'number') {
+                    _ret_str = _ret_str.concat(i + ', ');
                 } else {
                     _ret_str = _ret_str.concat(i + ', \n');
                 }
             }
-            var _shift = _type_of_value === 'string' ? 2 : 3;
+            if (_type_of_value === 'string' || _type_of_value === 'number') {
+                var _shift = 2;
+            } else {
+                var _shift = 3;
+            }
+            
             _ret_str = 'py_Set : {' + _ret_str.substr(0, _ret_str.length - _shift) + '}';
             return _ret_str;
         };
@@ -131,6 +175,10 @@ var py_Set_Base = {
         // TODO();
     },
 };
+py_Set_Base.__proto__ = py_Unordered_Collection;
+
+
+
 
 
 // ----------------------------------------------
@@ -161,8 +209,17 @@ var py_Set = {
         return _set;
     },
 
-    opt_remove : function(_set, _obj) {
+    opt_discard : function(_set, _obj) {
         if (this.opt_not_in(_set, _obj)) return _set;
+        var _key = this.toKey(_obj);
+        delete _set.value[_key];
+        return _set;
+    },
+
+    opt_remove : function(_set, _obj) {
+        if (this.opt_not_in(_set, _obj)) {
+            throw "KeyError";
+        }
         var _key = this.toKey(_obj);
         delete _set.value[_key];
         return _set;
@@ -179,9 +236,7 @@ var py_Set = {
         return _value;
     },
 
-    opt_discard : function(_set) {
-        // TODO();
-    },
+    
 
     opt_update : function(_set) {
         // TODO();
@@ -199,6 +254,10 @@ var py_Set = {
 py_Set.__proto__ = py_Set_Base;
 
 
+
+
+
+
 // ----------------------------------------------
 //     FrozenSet
 // ----------------------------------------------
@@ -206,6 +265,7 @@ py_Set.__proto__ = py_Set_Base;
 var py_FrozenSet = {
     return_an_instance : function(_arr_of_obj) {
         var py_frozenset_instance = py_Set_Base.return_an_instance(_arr_of_obj);
+        Object.freeze(py_frozenset_instance.value);     // freeze and lead to be immutable
         py_frozenset_instance.mutable = false;
         return py_frozenset_instance;
     },
@@ -213,16 +273,90 @@ var py_FrozenSet = {
 py_FrozenSet.__proto__ = py_Set_Base;
 
 
+
+
+
 // ----------------------------------------------
 //     Dict
 // ----------------------------------------------
 
-var Dict = {
-    return_an_instance : function(_arr_of_obj) {
+var KEY = 0, VALUE = 1;     // consist value for pair of key and value —— [key, value]
+
+var py_Dict = {
+    // store the pair of key and value into the Set
+
+    // _arr_of_pair : [ [key1_obj, value1_obj], [key2_obj, value2_obj]... ]
+    return_an_instance : function(_arr_of_pair) {
+        var py_dict_instance = py_Unordered_Collection.return_an_instance();
+
+        var _key;
+        for (var i in _arr_of_pair) {
+            _key = this.toKey(_arr_of_pair[i][KEY]);
+            py_dict_instance.value[_key] = _arr_of_obj[i];
+        }
+
+        return py_dict_instance;
+    },
+
+    opt_item : function(_dict, _key) {
+        return _dict.value[_key][VALUE];
+    },
+
+    opt_len : function(_dict) {
+        return Object.getOwnPropertyNames(_dict.value).length;
+    },
+
+    opt_in : function(_dict, _key) {
+        var _key_str = this.toKey(_key);
+        return _key_str in _dict.value;
+    },
+
+    opt_not_in : function(_dict, _key) {
+        return !this.opt_in(_dict, _key);
+    },
+
+    opt_get : function(_dict, _obj) {
         // TODO();
     },
-};
 
+    opt_iter : function(_dict, _obj) {
+        // TODO();
+    },
+
+    opt_next : function(_dict, _obj) {
+
+    },
+
+    opt_clear : function(_dict, _obj) {
+        // TODO();
+    },
+
+    opt_items : function(_dict, _obj) {
+        // TODO();
+    },
+
+    opt_pop : function(_dict, _obj) {
+        // TODO();
+    },
+
+    opt_popitem : function(_dict, _obj) {
+        // TODO();
+    },
+
+    opt_setdefault : function(_dict, _obj) {
+        // TODO();
+    },
+
+    opt_update : function(_dict, _obj) {
+        // TODO();
+    },
+
+    opt_values : function(_dict, _obj) {
+        // TODO();
+    },
+
+};
+py_Dict.__proto__ = py_Unordered_Collection;
 
 
 
@@ -240,7 +374,16 @@ print("len(set1) : " + py_Set.opt_len(set1));
 print(set1.show());             // show
 py_Set.opt_add(set1, 9);        // add
 print(set1.show());
-print(py_Set.opt_pop(set1));    // pop
+
+// iterator test
+var _item1 = set1.next();
+while (_item1) {
+    print(_item1);
+    _item1 = set1.next();
+}
+
+print(set1.show());
+print("pop() : " + py_Set.opt_pop(set1));    // pop
 print(set1.show());
 print(py_Set.opt_len(set1));    // len
 print(py_Set.opt_remove(set1, 3).show());   // remove, nested
@@ -280,4 +423,13 @@ print(set3.show());
 var stu1 = new Student("XiaoHong");
 py_Set.opt_add(set3, stu1);
 print(set3.show());
+
+// iterator test
+print("iterator output : ");
+var _item3 = set3.next();
+while (_item3) {
+    print(_item3);
+    _item3 = set3.next();
+}
+
 print('len(set3) : ' + py_Set.opt_len(set3));
