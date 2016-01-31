@@ -5,14 +5,14 @@
 
 var print = console.log;		// define for debug
 
-///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 //
 //	prototype lists :
 //		py_Set -> py_Set_Base -> Unordered_Collection ;
 //		py_FrozenSet -> py_Set_Base -> Unordered_Collection ;
 //		Dict -> Unordered_Collection ;
 //
-///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 
 
 
@@ -57,7 +57,6 @@ var py_Unordered_Collection = {
     return_an_instance : function() {
         var py_uc_instance = {};
         py_uc_instance.value = {};
-
         py_uc_instance.iter = null;     // iterator : index of keys
 
         py_uc_instance.next = function() {
@@ -267,6 +266,7 @@ var py_FrozenSet = {
         var py_frozenset_instance = py_Set_Base.return_an_instance(_arr_of_obj);
         Object.freeze(py_frozenset_instance.value);     // freeze and lead to be immutable
         py_frozenset_instance.mutable = false;
+        Object.freeze(py_frozenset_instance);
         return py_frozenset_instance;
     },
 };
@@ -292,14 +292,25 @@ var py_Dict = {
         var _key;
         for (var i in _arr_of_pair) {
             _key = this.toKey(_arr_of_pair[i][KEY]);
-            py_dict_instance.value[_key] = _arr_of_obj[i];
+            py_dict_instance.value[_key] = _arr_of_pair[i];
         }
+
+        py_dict_instance.show = function() {
+            var _arr = this.value;
+            var _ret = "";
+            for (var i in _arr) {
+                _ret = _ret + '(' + _arr[i][KEY] + ' => ' + _arr[i][VALUE] + '), ';
+            }
+            _ret = '[ ' + _ret.substr(0, _ret.length - 2) + ']';
+            return _ret;
+        };
 
         return py_dict_instance;
     },
 
     opt_item : function(_dict, _key) {
-        return _dict.value[_key][VALUE];
+        var _key_str = this.toKey(_key);
+        return _dict.value[_key_str][VALUE];
     },
 
     opt_len : function(_dict) {
@@ -313,6 +324,12 @@ var py_Dict = {
 
     opt_not_in : function(_dict, _key) {
         return !this.opt_in(_dict, _key);
+    },
+
+    opt_set : function(_dict, _pair) {
+        var _key = this.toKey(_pair[KEY]);
+        _dict.value[_key] = _pair;
+        return _dict;
     },
 
     opt_get : function(_dict, _obj) {
@@ -367,7 +384,10 @@ py_Dict.__proto__ = py_Unordered_Collection;
 /////////////////////////////////////////////////// 
 
 
+// --------------------- Test For Set ------------------------
+print("****************** Test For Set ******************");
 // test for numbers
+print("----- test for numbers -----");
 var set1 = py_Set.return_an_instance([2, 3, 1, 2]); 
 
 print("len(set1) : " + py_Set.opt_len(set1));
@@ -376,6 +396,7 @@ py_Set.opt_add(set1, 9);        // add
 print(set1.show());
 
 // iterator test
+print("\niterator output : ");
 var _item1 = set1.next();
 while (_item1) {
     print(_item1);
@@ -388,8 +409,17 @@ print(set1.show());
 print(py_Set.opt_len(set1));    // len
 print(py_Set.opt_remove(set1, 3).show());   // remove, nested
 
+
+
 // test for strings
-var set2 = py_Set.return_an_instance(['ha', 'hey', 'hello', 'ha']); 
+print("----- test for strings -----");
+var set2 = py_Set.return_an_instance();
+print("len(set2) : " + py_Set.opt_len(set2));
+
+var set2_temp = ['ha', 'hey', 'hello', 'ha']
+for (var _item2 in set2_temp) {
+    py_Set.opt_add(set2, set2_temp[_item2]);
+}
 
 print("len(set2) : " + py_Set.opt_len(set2));
 print(set2.show());             // show
@@ -400,7 +430,10 @@ print(set2.show());
 print(py_Set.opt_len(set2));    // len
 print(py_Set.opt_remove(set2, 'hey').show());   // remove, nested
 
+
+
 // test for user-defined objects
+print("----- test for user-defined objects -----");
 var Student = function(_name) {
     this.name = _name;
     this.id = ++id_count;
@@ -425,7 +458,7 @@ py_Set.opt_add(set3, stu1);
 print(set3.show());
 
 // iterator test
-print("iterator output : ");
+print("\niterator output : ");
 var _item3 = set3.next();
 while (_item3) {
     print(_item3);
@@ -433,3 +466,41 @@ while (_item3) {
 }
 
 print('len(set3) : ' + py_Set.opt_len(set3));
+
+
+
+
+
+// --------------------- Test For FrozenSet ------------------------
+
+print("\n\n****************** Test For FrozenSet ******************");
+
+var frozenset1 = py_FrozenSet.return_an_instance([2, 3, 1, 5, 7, 2]);
+print(frozenset1.show());
+print("If you attempt to change the value of a frozenset, then : ");
+try {frozenset1.value = {1 : 1, 2 : 2, 3 : 3};} catch(e) {
+    print("\t" + e);
+}
+print(frozenset1.show());
+
+
+// --------------------- Test For Dict ------------------------
+
+print("\n\n****************** Test For Dict ******************");
+
+var dict1_temp = [['Zhao', 'Death'], ['Xi', 'Alive'], ['Da', 'Unknown']];
+var dict1 = py_Dict.return_an_instance(dict1_temp);
+
+print(dict1.show());
+py_Dict.opt_set(dict1, ['Wang', 'Alive']);
+print(dict1.show());
+py_Dict.opt_set(dict1, ['Wang', 'Death']);
+print(dict1.show());
+
+// iterator test
+print("\niterator output : ");
+var _item4 = dict1.next();
+while (_item4) {
+    print(_item4);
+    _item4 = dict1.next();
+}
