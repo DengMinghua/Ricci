@@ -125,13 +125,13 @@ var py_Set_Base = {
         return py_set_base_instance;
     },
 
-    opt_in : function(_set_base, _obj) {
+    opt_in : function(_set, _obj) {
         var _key = this.toKey(_obj);
-        return _key in _set_base.value;
+        return _key in _set.value;
     },
 
-    opt_not_in : function(_set_base, _obj) {
-        return !this.opt_in(_set_base, _obj);
+    opt_not_in : function(_set, _obj) {
+        return !this.opt_in(_set, _obj);
     },
 
     opt_len : function(_set) {
@@ -142,36 +142,104 @@ var py_Set_Base = {
         return this.opt_len(_set) === 0;
     },
 
-    opt_isdisjoint : function(_set_base, _subset) {
-        // TODO()
+    opt_isdisjoint : function(_set, _other_set) {
+        var _l_set = _set.value, _s_set = _other_set.value;
+        if (_l_set.length < _s_set.length) {
+            _l_set = [_s_set, _s_set = _l_set][0];      // Swap inline
+        }
+
+        for (var i in _s_set) {
+            if (_s_set[i] in _l_set) {
+                return false;
+            }
+        }
+
+        return true;
     },
 
-    opt_issubset : function(_set_base, _subset) {
-        // TODO()
+    opt_issubset : function(_set, _other_set) {
+        var _subset_val = _set.value, _set_val = _other_set.value;
+        for (var i in _subset_val) {
+            if (!(_subset_val[i] in _set_val)) {
+                return false;
+            }
+        }
+
+        return true;
     },
 
-    opt_issuperset : function(_set_base, _supset) {
-        // TOOD();
+    opt_issuperset : function(_set, _supset) {
+        return this.opt_issubset(_supset, _set);
     },
 
-    opt_union : function(_set_base, _another_set_base) {
-        // TODO();
+    opt_union : function(_set, _other_set) {
+        var _uni_arr = [];
+        var _set_val = _set.value, _other_set_val = _other_set.value;
+
+        for (var i in _set_val) {
+            _uni_arr.push(_set_val[i]);
+        }
+
+        for (var i in _other_set_val) {
+            if (!(i in _set_val)) {
+                _uni_arr.push(_other_set_val[i]);
+            }
+        }
+
+        return this.return_an_instance(_uni_arr);
     },
 
-    opt_intersection : function(_set_base, _another_set_base) {
-        // TODO();
+    opt_intersection : function(_set, _other_set) {
+        var _set_val = _set.value, _other_set_val = _other_set.value;
+        var _int_arr = [];
+        for (var i in _set_val) {
+            if (i in _other_set_val) {
+                _int_arr.push(_set_val[i]);
+            }
+        }
+
+        return this.return_an_instance(_int_arr);
     },
 
-    opt_difference : function(_set_base, _another_set_base) {
-        // TODO();
+    opt_difference : function(_set, _other_set) {
+        var _set_val = _set.value, _other_set_val = _other_set.value;
+        var _diff_arr = [];
+
+        for (var i in _set_val) {
+            if (!(i in _other_set_val)) {
+                _diff_arr.push(_set_val[i]);
+            }
+        }
+
+        return this.return_an_instance(_diff_arr);
     },
 
-    opt_symmetric_difference : function(_set_base, _another_set_base) {
-        // TODO();
+    opt_symmetric_difference : function(_set, _other_set) {
+        var _set_val = _set.value, _other_set_val = _other_set.value;
+        var _sym_diff_arr = [];
+
+        for (var i in _set_val) {
+            if (!(i in _other_set_val)) {
+                _sym_diff_arr.push(_set_val[i]);
+            }
+        }
+
+        for (var i in _other_set_val) {
+            if (!(i in _set_val)) {
+                _sym_diff_arr.push(_other_set_val[i]);
+            }
+        }
+
+        return this.return_an_instance(_sym_diff_arr);
     },
 
-    opt_copy : function(_set_base, _another_set_base) {
-        // TODO();
+    opt_copy : function(_set) {
+        var _set_val = _set.value;
+        var _arr = [];
+        for (var i in _set_val) {
+            _arr.push(_set_val[i]);
+        }
+        return this.return_an_instance(_arr);
     },
 };
 py_Set_Base.__proto__ = py_Unordered_Collection;
@@ -235,19 +303,26 @@ var py_Set = {
         return _value;
     },
 
-    
+    opt_update : function(_set, _other_set) {
+        var _set_tmp = this.opt_union(_set, _other_set);
+        _set.value = _set_tmp.value;
+        return _set;
+    },
 
-    opt_update : function(_set) {
-        // TODO();
+    opt_intersection_update : function(_set, _other_set) {
+        var _set_tmp = this.opt_intersection(_set, _other_set);
+        _set.value = _set_tmp.value;
+        return _set;
     },
-    opt_intersection_update : function(_set) {
-        // TODO();
+    opt_difference_update : function(_set, _other_set) {
+        var _set_tmp = this.opt_difference(_set, _other_set);
+        _set.value = _set_tmp.value;
+        return _set;
     },
-    opt_difference_update : function(_set) {
-        // TODO();
-    },
-    opt_symmetric_difference_update : function(_set) {
-        // TODO();
+    opt_symmetric_difference_update : function(_set, _other_set) {
+        var _set_tmp = this.opt_symmetric_difference(_set, _other_set);
+        _set.value = _set_tmp.value;
+        return _set;
     },
 };
 py_Set.__proto__ = py_Set_Base;
@@ -308,22 +383,22 @@ var py_Dict = {
         return py_dict_instance;
     },
 
-    opt_item : function(_dict, _key) {
-        var _key_str = this.toKey(_key);
-        return _dict.value[_key_str][VALUE];
+    opt_item : function(_dict, _obj) {
+        var _key = this.toKey(_obj);
+        return _dict.value[_key][VALUE];
     },
 
     opt_len : function(_dict) {
         return Object.getOwnPropertyNames(_dict.value).length;
     },
 
-    opt_in : function(_dict, _key) {
-        var _key_str = this.toKey(_key);
-        return _key_str in _dict.value;
+    opt_in : function(_dict, _obj) {
+        var _key = this.toKey(_obj);
+        return _key in _dict.value;
     },
 
-    opt_not_in : function(_dict, _key) {
-        return !this.opt_in(_dict, _key);
+    opt_not_in : function(_dict, _obj) {
+        return !this.opt_in(_dict, _obj);
     },
 
     opt_set : function(_dict, _pair) {
@@ -332,44 +407,95 @@ var py_Dict = {
         return _dict;
     },
 
-    opt_get : function(_dict, _obj) {
-        // TODO();
+    opt_get : function(_dict, _obj, _default) {
+        if (this.opt_in(_dict, _obj)) {
+            var _key = this.toKey(_obj);
+            return _dict.value[_key][VALUE];
+        } else {
+            return _default
+        }
     },
 
-    opt_iter : function(_dict, _obj) {
-        // TODO();
+    opt_iter : function(_dict) {
+        return _dict.iter;
     },
 
-    opt_next : function(_dict, _obj) {
-
+    opt_keys : function(_dict) {
+        var _ret_arr_key = [];
+        var _dict_val = _dict.value;
+        for (var i in _dict_val) {
+            _ret_arr_key.push(_dict_val[i][KEY]);
+        }
+        return _ret_arr_key;
     },
 
-    opt_clear : function(_dict, _obj) {
-        // TODO();
+    opt_next : function(_dict) {
+        return _dict.next();
     },
 
-    opt_items : function(_dict, _obj) {
-        // TODO();
+    opt_clear : function(_dict) {
+        _dict.value = {};
     },
 
-    opt_pop : function(_dict, _obj) {
-        // TODO();
+    opt_items : function(_dict) {
+        var _ret_arr_pair = [];
+        var _dict_val = _dict.value;
+        for (var i in _dict_val) {
+            _ret_arr_pair.push(_dict_val[i]);
+        }
+        return _ret_arr_pair;
     },
 
-    opt_popitem : function(_dict, _obj) {
-        // TODO();
+    opt_copy : function(_dict) {
+        return this.return_an_instance(this.opt_items(_dict));
     },
 
-    opt_setdefault : function(_dict, _obj) {
-        // TODO();
+    opt_pop : function(_dict, _obj, _default) {
+        if (this.opt_in(_dict, _obj)) {
+            var _key = this.toKey(_obj);
+            var _ret_value = _dict.value[_key][VALUE];
+            delete _dict.value[_key];
+            return _ret_value;
+        } else {
+            return _default;
+        }
     },
 
-    opt_update : function(_dict, _obj) {
-        // TODO();
+    opt_popitem : function(_dict, _obj, _default) {
+        if (this.opt_in(_dict, _obj)) {
+            var _key = this.toKey(_obj);
+            var _ret_pair = _dict.value[_key];
+            delete _dict.value[_key];
+            return _ret_pair;
+        } else {
+            return _default;
+        }
+    },
+
+    opt_setdefault : function(_dict, _obj, _default) {
+        var _key = this.toKey(_obj);
+        if (this.opt_in(_dict, _obj)) {
+            return _dict.value[_key][VALUE];
+        } else {
+            this.opt_set(_dict, [_obj, _default]);
+            return _default;
+        }
+    },
+
+    opt_update : function(_dict, _other_dict) {
+        var _dict_val = _dict.value, _other_dict_val = _other_dict.value;
+        for (var i in _other_dict_val) {
+            _dict_val[i] = _other_dict_val[i];
+        }
     },
 
     opt_values : function(_dict, _obj) {
-        // TODO();
+        var _ret_arr_value = [];
+        var _dict_val = _dict.value;
+        for (var i in _dict_val) {
+            _ret_arr_value.push(_dict_val[i][VALUE]);
+        }
+        return _ret_arr_value;
     },
 
 };
@@ -389,6 +515,9 @@ print("****************** Test For Set ******************");
 // test for numbers
 print("----- test for numbers -----");
 var set1 = py_Set.return_an_instance([2, 3, 1, 2]); 
+var set1_1 = py_Set.return_an_instance([1, 3, 4, 5, 6, 7, 8]);
+var set1_2 = py_Set.return_an_instance([1, 3, 5, 9]);
+var set1_3 = py_Set.opt_copy(set1_2);
 
 print("len(set1) : " + py_Set.opt_len(set1));
 print(set1.show());             // show
@@ -411,8 +540,65 @@ print(py_Set.opt_remove(set1, 3).show());   // remove, nested
 
 
 
+var test_list1 = [
+    "\ntest for isdisjoint() : ",
+    "set1 : " + set1.show(),
+    "set1_1 : " + set1_1.show(),
+    py_Set.opt_isdisjoint(set1, set1_1),        // true
+    py_Set.opt_add(set1_1, 9).show(),
+    "set1 : " + set1.show(),
+    "set1_1 : " + set1_1.show(),
+    py_Set.opt_isdisjoint(set1, set1_1),        // false
+
+    "\ntest for issubset() : ",
+    "set1_2 : " + set1_2.show(),
+    "set1_1 : " + set1_1.show(), 
+    py_Set.opt_issubset(set1_2, set1_1),        // true
+    "set1 : " + set1.show(),
+    "set1_1 : " + set1_1.show(), 
+    py_Set.opt_issubset(set1, set1_1),          // false
+
+    "\ntest for union() : ",
+    "set1 : " + set1.show(), 
+    "set1_2 : " + set1_2.show(), 
+    "(set1 | set1_2) --> " +
+    py_Set.opt_union(set1, set1_2).show(), 
+
+    "\ntest for intersection() : ",
+    "set1 : " + set1.show(), 
+    "set1_2 : " + set1_2.show(), 
+    "(set1 & set1_2) --> " +
+    py_Set.opt_intersection(set1, set1_2).show(), 
+
+    "\ntest for difference() : ",
+    "set1 : " + set1.show(), 
+    "set1_2 : " + set1_2.show(), 
+    "(set1 - set1_2) --> " +
+    py_Set.opt_difference(set1, set1_2).show(), 
+    "(set1_2 - set1) --> " +
+    py_Set.opt_difference(set1_2, set1).show(), 
+    "(set1_2 ^ set1) --> " +
+    py_Set.opt_symmetric_difference(set1_2, set1).show(),
+
+    "\ntest for copy() : ",
+    "set1_3 copy from set1_2 : ",
+    "set1_3 : " + set1_3.show(), 
+    "set1_2 : " + set1_2.show(),
+
+    "\ntest for union_update() : ",
+    "set1 : " + set1.show(), 
+    "set1_2 : " + set1_2.show(), 
+    "(set1 |= set1_2) --> " +
+    py_Set.opt_update(set1, set1_2).show(), 
+    "set1 : " + set1.show(), 
+];
+
+for (var _i1 in test_list1) {
+    print(test_list1[_i1]);
+}
+
 // test for strings
-print("----- test for strings -----");
+print("\n\n\n----- test for strings -----");
 var set2 = py_Set.return_an_instance();
 print("len(set2) : " + py_Set.opt_len(set2));
 
@@ -433,7 +619,7 @@ print(py_Set.opt_remove(set2, 'hey').show());   // remove, nested
 
 
 // test for user-defined objects
-print("----- test for user-defined objects -----");
+print("\n\n\n----- test for user-defined objects -----");
 var Student = function(_name) {
     this.name = _name;
     this.id = ++id_count;
@@ -504,3 +690,20 @@ while (_item4) {
     print(_item4);
     _item4 = dict1.next();
 }
+
+
+var dict2_temp = [['Wang', 'Alive'], ['Lan', 'Alive'], ['Hua', 'Unknown']];
+var dict2 = py_Dict.return_an_instance(dict2_temp);
+
+print("\ntest for update() : ");
+print("dict1 : " + dict1.show());
+print("dict2 : " + dict2.show());
+py_Dict.opt_update(dict1, dict2);
+print("dict1 : " + dict1.show());
+
+var dict3 = py_Dict.opt_copy(dict2);
+print("dict3 : " + dict3.show());
+print("dict2 : " + dict2.show());
+py_Dict.opt_pop(dict2, 'Wang');
+print("dict3 : " + dict3.show());
+print("dict2 : " + dict2.show());
