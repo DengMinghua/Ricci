@@ -1,30 +1,43 @@
 'use strict'
 
-var print = console.log;		// define for debug
+var print = console.log; // define for debug
 
 // String
 
 var String_Py = {
-	return_an_instance : function(_str) {
+	return_an_instance: function(_str) {
 		var string_instance = {};
 		string_instance.value = _str;
 		return string_instance;
 	},
 
-	opt_capitalize : function(_str) {
+	opt_capitalize: function(_str) {
 		var _ret = _str.value[0].toUpperCase() + _str.value.slice(1).toLowerCase();
 		return this.return_an_instance(_ret);
 	},
 
-	opt_casefold : function(_str) {
+	opt_casefold: function(_str) {
 		return this.opt_lower(_str);
 	},
 
-	opt_center : function() {
-		// TODO();
+	opt_center: function(_str, _width, _fillchar) {
+		var _fillchar = _fillchar ? _fillchar : ' ';
+		var len = _str.value.length;
+		var applen = _width - len;
+		var appleft = Math.ceil(applen / 2);
+		var appright = Math.floor(applen / 2);
+		if (applen <= 0) return _str;
+		var _ret = _str.value;
+		for (var i = 0; i < appleft; i++) {
+			_ret = _fillchar + _ret;
+		}
+		for (var i = 0; i < appright; i++) {
+			_ret = _ret + _fillchar;
+		}
+		return this.return_an_instance(_ret);
 	},
 
-	opt_count : function(_str, _substr) {
+	opt_count: function(_str, _substr) {
 		// count the number of substr
 
 		// make sure that _substr is string type.
@@ -49,19 +62,19 @@ var String_Py = {
 		return _sum;
 	},
 
-	opt_encode : function() {
+	opt_encode: function() {
 		// TODO();
 	},
 
-	opt_endswith : function() {
-		// TODO();
-	},
-	
-	opt_expandtabs : function() {
+	opt_endswith: function() {
 		// TODO();
 	},
 
-	opt_find : function(_str, _substr, _start, _end) {
+	opt_expandtabs: function() {
+		// TODO();
+	},
+
+	opt_find: function(_str, _substr, _start, _end) {
 		// If not find, return -1
 
 		// make sure that _substr is string type.
@@ -80,14 +93,14 @@ var String_Py = {
 		return _index === -1 ? _index : _index + _left;
 	},
 
-	opt_format : function() {
+	opt_format: function() {
 		// TODO();
 	},
-	opt_format_map : function() {
+	opt_format_map: function() {
 		// TODO();
 	},
 
-	opt_index : function(_str, _substr, _start, _end) {
+	opt_index: function(_str, _substr, _start, _end) {
 		var _ret = this.opt_find(_str, _substr, _start, _end);
 		if (_ret === -1) {
 			throw "operation of String, opt_index failed...";
@@ -95,60 +108,60 @@ var String_Py = {
 		return _ret;
 	},
 
-	opt_isalnum : function(_str) {
+	opt_isalnum: function(_str) {
 		return /^[A-Za-z0-9]+$/g.test(_str.value);
 	},
-	opt_isalpha : function(_str) {
+	opt_isalpha: function(_str) {
 		return /^[A-Za-z]+$/g.test(_str.value);
 	},
-	opt_isdecimal : function(_str) {
+	opt_isdecimal: function(_str) {
 		return this.opt_isdigit(_str);
 	},
-	opt_isdigit : function(_str) {
+	opt_isdigit: function(_str) {
 		return /^\d+$/g.test(_str.value);
 	},
 
-	opt_isidentifier : function() {
+	opt_isidentifier: function() {
 		// TODO();
 	},
 
-	opt_islower : function(_str) {
+	opt_islower: function(_str) {
 		return /^[a-z]+$/g.test(_str.value);
 	},
 
-	opt_isnumeric : function(_str) {
+	opt_isnumeric: function(_str) {
 		return this.opt_isdigit(_str);
 	},
 
-	opt_isprintable : function() {
+	opt_isprintable: function() {
 		// TODO();
 	},
 
-	opt_isspace : function(_str) {
+	opt_isspace: function(_str) {
 		return /^\s+$/g.test(_str.value);
 	},
 
-	opt_istitle : function(_str) {
+	opt_istitle: function(_str) {
 		var _str_arr = _str.value.split(/[^A-Za-z]+/g);
 		var _hit = false;
 		if (!_str_arr[0]) _str_arr.splice(0, 1);
 		var _back = _str_arr.pop();
 		if (_back) _str_arr.push(_back);
 		for (var i in _str_arr) {
-		    if (!/^[A-Z][a-z]*$/g.test(_str_arr[i])) {
-		        return false;
-		    } else if (!_hit) {
-		        _hit = true;
-		    }
+			if (!/^[A-Z][a-z]*$/g.test(_str_arr[i])) {
+				return false;
+			} else if (!_hit) {
+				_hit = true;
+			}
 		}
 		return _hit;
 	},
 
-	opt_isupper : function(_str) {
+	opt_isupper: function(_str) {
 		return /^[A-Z]+$/g.test(_str.value);
 	},
 
-	opt_join : function(_str, _arr_of_str) {
+	opt_join: function(_str, _arr_of_str) {
 
 		if (typeof(_str) !== 'string') {
 			_str = _str.value;
@@ -176,68 +189,84 @@ var String_Py = {
 		}
 	},
 
-	opt_ljust : function() {
-		// TODO();
+	opt_ljust: function(_str, _width, _fillchar) {
+		var _fillchar = _fillchar ? _fillchar : ' ';
+		var len = _str.value.length;
+		var applen = _width - len;
+		if (applen <= 0) return _str;
+		var _ret = _str.value;
+		for (var i = 0; i < applen; i++) {
+			_ret = _fillchar + _ret;
+		}
+		return this.return_an_instance(_ret);
 	},
-	opt_lower : function(_str) {
+	opt_lower: function(_str) {
 		return this.return_an_instance(_str.value.toLowerCase());
 	},
-	opt_lstrip : function(_str) {
+	opt_lstrip: function(_str) {
 		return this.return_an_instance(_str.value.replace(/^\s+/g, ""));
 	},
-	opt_maketrans : function() {
+	opt_maketrans: function() {
 		// TODO();
 	},
-	opt_partition : function() {
+	opt_partition: function() {
 		// TODO();
 	},
-	opt_replace : function() {
+	opt_replace: function() {
 		// TODO();
 	},
-	opt_rindex : function() {
+	opt_rindex: function() {
 		// TODO();
 	},
-	opt_rjust : function() {
+	opt_rjust: function() {
+		var _fillchar = _fillchar ? _fillchar : ' ';
+		var len = _str.value.length;
+		var applen = _width - len;
+		if (applen <= 0) return _str;
+		var _ret = _str.value;
+		for (var i = 0; i < applen; i++) {
+			_ret =  _ret + _fillchar;
+		}
+		return this.return_an_instance(_ret);
+	},
+	opt_rpartition: function() {
 		// TODO();
 	},
-	opt_rpartition : function() {
+	opt_rsplit: function() {
 		// TODO();
 	},
-	opt_rsplit : function() {
+	opt_rstrip: function(_str) {
+		return this.return_an_instance(_str.value.replace(/\s+$/g, ""));
+	},
+	opt_split: function() {
 		// TODO();
 	},
-	opt_rstrip : function(_str) {
-		return this.return_an_instance(_str.value.replace(/\s+$/g,""));
-	},
-	opt_split : function() {
+	opt_splitlines: function() {
 		// TODO();
 	},
-	opt_splitlines : function() {
-		// TODO();
-	},
-	opt_startswith : function() {
-		// TODO();
-	},
-
-	opt_strip : function(_str) {
-		return this.return_an_instance(_str.value.replace(/^\s+|\s+$/g,""));
-	},
-
-	opt_swapcase : function() {
-		// TODO();
-	},
-	opt_title : function() {
-		// TODO();
-	},
-	opt_translate : function() {
+	opt_startswith: function() {
 		// TODO();
 	},
 
-	opt_upper : function(_str) {
+	opt_strip: function(_str) {
+		return this.return_an_instance(_str.value.replace(/^\s+|\s+$/g, ""));
+	},
+
+	opt_swapcase: function() {
+		// TODO();
+	},
+	opt_title: function() {
+		// TODO();
+	},
+	opt_translate: function() {
+		// TODO();
+	},
+
+	opt_upper: function(_str) {
 		return this.return_an_instance(_str.value.toUpperCase());
 	},
 
-	opt_zfill : function() {
+	opt_zfill: function() {
 		// TODO();
 	},
 
@@ -248,7 +277,7 @@ var String_Py = {
 // --------------------------------------------- //
 //                    Testing.                   //
 // --------------------------------------------- //
-/////////////////////////////////////////////////// 
+///////////////////////////////////////////////////
 
 
 var s1 = String_Py.return_an_instance(" hello, world ! ");
@@ -293,8 +322,11 @@ var test_list = [
 	String_Py.opt_join("-", s3),
 	String_Py.opt_join("___", [s3, s4, s11]),
 	String_Py.opt_join(s12, s11),
-];
 
-for (var i of test_list) {
+	String_Py.opt_center(s3, 15, 'a')
+];
+console.log(String_Py.opt_center(s3, 15, 'a'));
+/*for (var i of test_list) {
 	print(i);
 }
+*/
